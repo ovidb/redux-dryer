@@ -1,0 +1,22 @@
+{
+  "name": "redux-dryer",
+  "version": "0.1.0",
+  "description": "Redux utilities to keep your reducers DRY",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ovidb/redux-dryer.git"
+  },
+  "keywords": [
+    "redux"
+  ],
+  "author": "ovidb",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ovidb/redux-dryer/issues"
+  },
+  "homepage": "https://github.com/ovidb/redux-dry#readme"
+}
