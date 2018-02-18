@@ -1,9 +1,11 @@
 {
   "name": "redux-dryer",
   "version": "0.1.0",
-  "description": "Redux utilities to keep your reducers DRY",
+  "description": "Redux utilities to keep your reducers small and DRY",
   "main": "index.js",
   "scripts": {
+    "build": "babel src -d dist",
+    "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/ovidb/redux-dryer/issues"
   },
-  "homepage": "https://github.com/ovidb/redux-dry#readme"
+  "homepage": "https://github.com/ovidb/redux-dry#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  }
 }
