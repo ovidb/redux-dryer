@@ -2,6 +2,9 @@
 
 Keep your redux stores as dry as possible
 
+#### [Playground](https://codesandbox.io/s/64joqv325k)
+
+
 ### Installing
 
 ```npm install redux-dryer```
@@ -31,7 +34,7 @@ export default generateActions(WalletActions, 'wallet');
 
 ```javascript
 import { generateReducer } from 'redux-dryer';
-import WalletActions from '../actions/wallet';
+import WalletActions from './wallet-actions.js';
 
 const INITIAL_STATE = { balance: 0 };
 
@@ -48,10 +51,10 @@ It works the same as a normal reducer.
 `reducers.js`
 ```javascript
 import walletReducer from './wallet-reducer.js';
+import { combineReducers } from 'redux';
 
 export default combineReducers({
   wallet: walletReducer,
-  ...
 })
 ```
 
@@ -60,17 +63,44 @@ export default combineReducers({
 ```jsx harmony
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { combineReducers } from 'redux';
+
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import reducers from './reducers';
+import Wallet from './wallet.js';
 
 const store = createStore(reducers);
 
 ReactDOM.render(
   <Provider store={store}>
-    <App/>
+    <Wallet />
   </Provider>,
   document.getElementById('root')
 );
 ```
+
+### Triger an action
+`wallet.js`
+```jsx harmony
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import actions from "./wallet-actions.js";
+
+export class Wallet extends Component {
+  render() {
+    console.log(actions);
+    return (
+      <div>
+        <div>{this.props.wallet.balance}</div>
+        <button onClick={() => this.props.depositAmount(200)}>+200</button>
+        <button onClick={() => this.props.withdrawAmount(100)}>-100</button>
+        <button onClick={() => this.props.depositAmount(1000000000)}>
+          I want to be Billionaire
+        </button>
+      </div>
+    );
+  }
+}
+
+export default connect(({ wallet }) => ({ wallet }), { ...actions })(Wallet);
+
