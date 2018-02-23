@@ -2,14 +2,14 @@
 
 Keep your redux stores as dry as possible
 
-#### [Playground](https://codesandbox.io/s/64joqv325k)
+#### [Demo Playground](https://codesandbox.io/s/64joqv325k)
 
 
 ### Installing
 
 ```npm install redux-dryer```
 
-## Useage
+## Usage
 
 ### Generating Actions
 
@@ -33,8 +33,8 @@ export default generateActions(WalletActions, 'wallet');
 `wallet-reducer.js`
 
 ```javascript
-import { generateReducer } from 'redux-dryer';
-import WalletActions from './wallet-actions.js';
+import { generateReducer } from "redux-dryer";
+import WalletActions from "./wallet-actions.js";
 
 const INITIAL_STATE = { balance: 0 };
 
@@ -44,63 +44,112 @@ export default generateReducer(INITIAL_STATE, WalletActions);
 
 That's all you need to do, and now your reducer will listen and respond to your actions
 
-### Combining reducer
+### Works with `redux-thunk`
 
-It works the same as a normal reducer.
+`bitcoin-actions.js`
+```javascript
+
+import { generateActions } from "redux-dryer";
+
+const BitcoinActions = {
+  setAmount: (rate, balance) => ({ bitcoins: balance / rate })
+};
+
+export default generateActions(BitcoinActions, "bitcoin");
+```
+
+`bitcoin-thunks.js`
+```javascript
+import BitcoinActions from "./bitcoin-actions.js";
+
+const getRate = json =>
+  parseInt(json.bpi.USD.rate.split(",").join(""), 10).toFixed(6);
+
+export const toBTC = balance => dispatch =>
+  fetch("https://api.coindesk.com/v1/bpi/currentprice.json")
+    .then(r => r.json())
+    .then(json => dispatch(BitcoinActions.setAmount(getRate(json), balance)));
+```
+
+`bitcoin-reducer.js`
+```
+import { generateReducer } from "redux-dryer";
+import BitcoinActions from "./bitcoin-actions.js";
+
+const INITIAL_STATE = { bitcoins: 0 };
+
+export default generateReducer(INITIAL_STATE, BitcoinActions);
+```
+
+### Combining reducers
 
 `reducers.js`
 ```javascript
-import walletReducer from './wallet-reducer.js';
-import { combineReducers } from 'redux';
+import walletReducer from "./wallet-reducer.js";
+import bitcoinReducer from "./bitcoin-reducer.js";
+import { combineReducers } from "redux";
 
 export default combineReducers({
   wallet: walletReducer,
-})
+  bitcoin: bitcoinReducer
+});
+
 ```
+
+### The app
 
 `App.js`
 
 ```jsx harmony
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { createStore, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import logger from "redux-logger";
+import reducers from "./reducers";
+import Wallet from "./wallet.js";
 
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import reducers from './reducers';
-import Wallet from './wallet.js';
-
-const store = createStore(reducers);
+const store = createStore(reducers, applyMiddleware(...[thunk, logger]));
 
 ReactDOM.render(
   <Provider store={store}>
     <Wallet />
   </Provider>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
+
 ```
 
 ### Triger an action
+
 `wallet.js`
 ```jsx harmony
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import actions from "./wallet-actions.js";
+import * as thunks from "./bitcoin-thunks.js";
 
 export class Wallet extends Component {
   render() {
-    console.log(actions);
+    
     return (
       <div>
-        <div>{this.props.wallet.balance}</div>
+        <div>USD Balance: {this.props.wallet.balance}</div>
+        <div>Bitcoin Balance: {this.props.bitcoin.bitcoins}</div>
         <button onClick={() => this.props.depositAmount(200)}>+200</button>
         <button onClick={() => this.props.withdrawAmount(100)}>-100</button>
         <button onClick={() => this.props.depositAmount(1000000000)}>
           I want to be Billionaire
         </button>
+        <button onClick={() => this.props.toBTC(this.props.wallet.balance)}>To BTC</button>
       </div>
     );
   }
 }
 
-export default connect(({ wallet }) => ({ wallet }), { ...actions })(Wallet);
+export default connect(({ wallet, bitcoin }) => ({ wallet, bitcoin }), {
+  ...actions,
+  ...thunks
+})(Wallet);
 
