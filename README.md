@@ -52,6 +52,7 @@ That's all you need to do, and now your reducer will listen and respond to your 
 import { generateActions } from "redux-dryer";
 
 const BitcoinActions = {
+  fetchedBitcoin: () => {}, // event actions, without payload
   setAmount: (rate, balance) => ({ bitcoins: balance / rate })
 };
 
@@ -65,10 +66,13 @@ import BitcoinActions from "./bitcoin-actions.js";
 const getRate = json =>
   parseInt(json.bpi.USD.rate.split(",").join(""), 10).toFixed(6);
 
-export const toBTC = balance => dispatch =>
+export const toBTC = balance => dispatch => 
   fetch("https://api.coindesk.com/v1/bpi/currentprice.json")
     .then(r => r.json())
-    .then(json => dispatch(BitcoinActions.setAmount(getRate(json), balance)));
+    .then(json => {
+      dispatch(BitcoinActions.fetchedBitcoin());
+      dispatch(BitcoinActions.setAmount(getRate(json), balance)); 
+    });
 ```
 
 `bitcoin-reducer.js`
