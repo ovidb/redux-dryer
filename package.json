@@ -1,6 +1,6 @@
 {
   "name": "redux-dryer",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Redux utilities to keep your reducers small and DRY",
   "main": "dist/index.js",
   "scripts": {

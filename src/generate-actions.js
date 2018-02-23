@@ -1,4 +1,6 @@
 import reduce from 'lodash/reduce';
+import omitBy from 'lodash/omitBy';
+import isUndefined from 'lodash/isUndefined';
 
 const toUpperSnake = val =>
   val
@@ -9,13 +11,13 @@ const generateActions = (actions, namespace) =>
   reduce(actions, (prev, action, type) =>
     ({
       ...prev,
-      [type]: (...args) => ({
+      [type]: (...args) => omitBy({
         type: toUpperSnake(`${namespace}/${type}`),
-        payload:
+        payload: 
           (typeof action() === 'function')
             ? state => action(...args)(state)
             : action(...args)
-      }),
+      }, isUndefined),
     }), {});
 
 export const getPlainAction = action => {
