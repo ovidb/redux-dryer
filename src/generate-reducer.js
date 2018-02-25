@@ -1,6 +1,11 @@
 import map from 'lodash/map';
 import includes from 'lodash/includes';
-import merge from 'lodash/merge'
+import mergeWith from 'lodash/mergeWith'
+import isArray from 'lodash/isArray'
+
+function overwriteArray(obj, src) {
+  if (isArray) return src;
+}
 
 const generateReducer =
   (initialState, generatedActions) => {
@@ -9,13 +14,14 @@ const generateReducer =
 
     return (state = initialState, action) =>
       includes(actionsTypes, action.type)
-        ? (merge(
+        ? (mergeWith(
           {},
           state,
           // if the payload is a function we'll inject state into it
           ((typeof action.payload === 'function')
             ? action.payload(state)
-            : action.payload )))
+            : action.payload ),
+          overwriteArray))
         : state;
   };
 
