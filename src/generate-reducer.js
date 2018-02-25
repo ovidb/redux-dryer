@@ -3,10 +3,6 @@ import includes from 'lodash/includes';
 import mergeWith from 'lodash/mergeWith'
 import isArray from 'lodash/isArray'
 
-function overwriteArray(obj, src) {
-  if (isArray) return src;
-}
-
 const generateReducer =
   (initialState, generatedActions) => {
     // save actionsTypes in an array to avoid re-iteration
@@ -21,7 +17,7 @@ const generateReducer =
           ((typeof action.payload === 'function')
             ? action.payload(state)
             : action.payload ),
-          overwriteArray))
+          (dest, src) => isArray(dest) ? src : undefined))
         : state;
   };
 
