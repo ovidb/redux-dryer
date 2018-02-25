@@ -1,5 +1,6 @@
 import map from 'lodash/map';
 import includes from 'lodash/includes';
+import merge from 'lodash/merge'
 
 const generateReducer =
   (initialState, generatedActions) => {
@@ -8,12 +9,13 @@ const generateReducer =
 
     return (state = initialState, action) =>
       includes(actionsTypes, action.type)
-        ? ({
-          ...state,
+        ? (merge(
+          {},
+          state,
           // if the payload is a function we'll inject state into it
-          ...((typeof action.payload === 'function')
+          ((typeof action.payload === 'function')
             ? action.payload(state)
-            : action.payload )})
+            : action.payload )))
         : state;
   };
 
