@@ -1,6 +1,6 @@
 {
   "name": "redux-dryer",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Redux utilities to keep your reducers small and DRY",
   "main": "dist/index.js",
   "scripts": {
@@ -27,6 +27,6 @@
     "babel-preset-env": "^1.6.1"
   },
   "dependencies": {
-    "lodash": "^4.17.5"
+    "lodash": "^4.17.15"
   }
 }
