@@ -1,5 +1,7 @@
 # Redux-dryer
 
+[![Coverage Status](https://coveralls.io/repos/github/ovidb/redux-dryer/badge.svg?branch=next)](https://coveralls.io/github/ovidb/redux-dryer?branch=next)
+
 Keep your redux stores as dry as possible
 
 #### [Demo Playground](https://codesandbox.io/s/64joqv325k)
