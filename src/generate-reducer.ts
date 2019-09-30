@@ -4,7 +4,7 @@ export const generateReducer = <State, R extends Reducers<State, any>>(
   options: IOptions<State, R>
 ): IOutput<State, ActionCreatorsOutput<R>> => {
   const { initialState, namespace } = options;
-  const reducers = options.reducers || {};
+  const reducers = options.reducers;
   const actionTypes = Object.keys(reducers);
 
   const reducerMap = actionTypes.reduce(
@@ -44,7 +44,7 @@ interface IOptions<
   State = any,
   R extends Reducers<State, any> = Reducers<State, any>
 > {
-  namespace: string;
+  namespace?: string;
   initialState: State;
   reducers: R;
 }
@@ -57,7 +57,7 @@ interface IOutput<
   actions: ActionCreators;
 }
 
-function getType(namespace: string, actionKey: string): string {
+function getType(namespace: string | undefined, actionKey: string): string {
   return namespace ? `${namespace}/${actionKey}` : actionKey;
 }
 
