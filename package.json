@@ -1,5 +1,5 @@
 {
-  "name": "redux-dryer",
+  "name": "@ovidb/redux-dryer",
   "version": "1.0.0-alpha.1",
   "description": "Redux utilities to keep your reducers small and DRY",
   "main": "index.js",
@@ -36,6 +36,10 @@
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
+    "prepare" : "npm run build",
+    "prepublishOnly" : "npm test && npm run lint",
+    "preversion" : "npm run lint",
+    "version" : "npm run format && git add -A src",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
     "test:prod": "npm run lint && npm run test -- --no-cache",
@@ -67,7 +71,6 @@
     "typescript": "^3.6.3"
   },
   "dependencies": {
-    "lodash": "^4.17.15",
     "immer": "^4.0.0"
   }
 }
