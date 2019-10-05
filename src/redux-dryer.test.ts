@@ -1,4 +1,4 @@
-import { ActionPayload, generateReducer } from './generate-reducer';
+import { ActionPayload, reduxDryer } from './redux-dryer';
 
 interface IState {
   state: string;
@@ -10,7 +10,7 @@ const initialState: IState = {
   number: 1,
 };
 
-describe('generate-reducer', () => {
+describe('reduxDryer', () => {
   const options = {
     namespace: 'namespace',
     initialState,
@@ -28,7 +28,7 @@ describe('generate-reducer', () => {
   };
 
   describe('When all options are passed', () => {
-    const generatedReducer = generateReducer(options);
+    const generatedReducer = reduxDryer(options);
 
     it('should return an actions object', () => {
       expect(generatedReducer.actions).toBeDefined();
@@ -77,7 +77,7 @@ describe('generate-reducer', () => {
   });
 
   describe('When the namespace is not passed', () => {
-    const generatedReducer = generateReducer({
+    const generatedReducer = reduxDryer({
       ...options,
       namespace: undefined,
     });

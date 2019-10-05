@@ -1,6 +1,6 @@
 import produce, { Draft } from 'immer';
 
-export const generateReducer = <State, R extends Reducers<State, any>>(
+export const reduxDryer = <State, R extends Reducers<State, any>>(
   options: IOptions<State, R>
 ): IOutput<State, ActionCreatorsOutput<R>> => {
   const { initialState, namespace } = options;

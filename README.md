@@ -4,117 +4,132 @@
 
 Keep your redux stores as dry as possible
 
-#### [Demo Playground](https://codesandbox.io/s/64joqv325k)
-
+#### [Demo Playground](https://codesandbox.io/s/redux-dryernext-89vvc)
 
 ### Installing
 
-```npm install redux-dryer```
+`npm install redux-dryer`
 
 ## Usage
 
-### Generating Actions
+### Generating actions creators and reducer
 
-`wallet-actions.js`
-```javascript
-import { generateActions } from 'redux-dryer';
+`wallet-dryer.ts`
 
-const WalletActions = {
-  setBalance: balance => ({ balance }),
-  depositAmount: amount => state => ({ balance: state.balance + amount }),
-  withdrawAmount: amount => state => ({ balance: state.balance - amount }),
+```typescript
+import { ActionPayload as AP, reduxDryer } from 'redux-dryer';
+
+interface WalletState {
+  balance: number;
+  btc: number;
+  loading: boolean;
+}
+
+const initialState: WalletState = {
+  loading: false,
+  balance: 0,
+  btc: 0,
 };
 
-export default generateActions(WalletActions, 'wallet');
+export type Payloads = {
+  SetBalance: number;
+  Amount: number;
+  SetBTCRate: number;
+  Loading: boolean;
+};
 
+const { reducer: walletReducer, actions } = reduxDryer({
+  initialState,
+  namespace: 'wallet',
+  reducers: {
+    // the name of the action will become the action type
+    setBalance: (state, action: AP<Payloads['SetBalance']>) => {
+      // we can update state directly because [Immer](https://github.com/immerjs/immer) is used behind the scene.
+      state.balance = action.payload;
+    },
+    depositAmount: (state, action: AP<Payloads['Amount']>) => {
+      state.balance += action.payload;
+    },
+    withdrawAmount: (state, action: AP<Payloads['Amount']>) => {
+      state.balance -= action.payload;
+    },
+    convertToBTC: (state, action: AP<Payloads['SetBTCRate']>) => {
+      state.btc = state.balance / action.payload;
+    },
+    setIsLoading: (state, action: AP<Payloads['Loading']>) => {
+      state.loading = action.payload;
+    },
+  },
+});
+
+export { walletReducer, actions };
 ```
 
+### Works with `redux-thunk`
 
-### Generating Reducers
+`bitcoin-thunks.ts`
 
-`wallet-reducer.js`
+```typescript
+import { actions } from './wallet-dryer';
+import { AppState } from './reducers';
+import { ThunkAction } from 'redux-thunk';
+import { Action } from 'redux';
 
-```javascript
-import { generateReducer } from "redux-dryer";
-import WalletActions from "./wallet-actions.js";
+export interface CoinDeskCurrentPriceResponse {
+  bpi: { USD: { rate: string } };
+}
 
-const INITIAL_STATE = { balance: 0 };
+const getRate = (json: CoinDeskCurrentPriceResponse) =>
+  parseFloat(parseInt(json.bpi.USD.rate.split(',').join(''), 10).toFixed(6));
 
-export default generateReducer(INITIAL_STATE, WalletActions);
+export const toBTC = (): ThunkAction<
+  Promise<>,
+  AppState,
+  number,
+  Action<string>
+> => async (dispatch, getState) => {
+  dispatch(actions.setIsLoading(true));
+  fetch('https://api.coindesk.com/v1/bpi/currentprice.json')
+    .then(r => r.json())
+    .then(json => {
+      dispatch(actions.setIsLoading(false));
+      dispatch(actions.convertToBTC(getRate(json)));
+    });
+};
+```
 
+### Adding the reducer to root reducer
+
+`root-reducer.ts`
+
+```typescript
+import { combineReducers } from 'redux';
+import { walletReducer } from './wallet-dryer';
+
+const rootReducer = combineReducers({
+  wallet: walletReducer,
+});
+
+export type AppState = ReturnType<typeof rootReducer>;
+
+export default rootReducer;
 ```
 
 That's all you need to do, and now your reducer will listen and respond to your actions
 
-### Works with `redux-thunk`
-
-`bitcoin-actions.js`
-```javascript
-
-import { generateActions } from "redux-dryer";
-
-const BitcoinActions = {
-  fetchedBitcoin: () => {}, // event actions, without payload
-  setAmount: (rate, balance) => ({ bitcoins: balance / rate })
-};
-
-export default generateActions(BitcoinActions, "bitcoin");
-```
-
-`bitcoin-thunks.js`
-```javascript
-import BitcoinActions from "./bitcoin-actions.js";
-
-const getRate = json =>
-  parseInt(json.bpi.USD.rate.split(",").join(""), 10).toFixed(6);
-
-export const toBTC = balance => dispatch => 
-  fetch("https://api.coindesk.com/v1/bpi/currentprice.json")
-    .then(r => r.json())
-    .then(json => {
-      dispatch(BitcoinActions.fetchedBitcoin());
-      dispatch(BitcoinActions.setAmount(getRate(json), balance)); 
-    });
-```
-
-`bitcoin-reducer.js`
-```
-import { generateReducer } from "redux-dryer";
-import BitcoinActions from "./bitcoin-actions.js";
-
-const INITIAL_STATE = { bitcoins: 0 };
-
-export default generateReducer(INITIAL_STATE, BitcoinActions);
-```
-
-### Combining reducers
-
-`reducers.js`
-```javascript
-import walletReducer from "./wallet-reducer.js";
-import bitcoinReducer from "./bitcoin-reducer.js";
-import { combineReducers } from "redux";
-
-export default combineReducers({
-  wallet: walletReducer,
-  bitcoin: bitcoinReducer
-});
-
-```
-
 ### The app
 
-`App.js`
+`App.tsx`
 
-```jsx harmony
-import React from "react";
-import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import { createStore, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
-import logger from "redux-logger";
-import reducers from "./reducers";
-import Wallet from "./wallet.js";
+```typescript jsx
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import logger from 'redux-logger';
+import rootReducer from './root-reducer';
+import Wallet from './wallet-connected';
 
 const store = createStore(reducers, applyMiddleware(...[thunk, logger]));
 
@@ -122,40 +137,55 @@ ReactDOM.render(
   <Provider store={store}>
     <Wallet />
   </Provider>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
-
 ```
 
-### Triger an action
+### Trigger an action
 
-`wallet.js`
-```jsx harmony
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import actions from "./wallet-actions.js";
-import * as thunks from "./bitcoin-thunks.js";
+`wallet.tsx`
 
-export class Wallet extends Component {
-  render() {
-    
-    return (
-      <div>
-        <div>USD Balance: {this.props.wallet.balance}</div>
-        <div>Bitcoin Balance: {this.props.bitcoin.bitcoins}</div>
-        <button onClick={() => this.props.depositAmount(200)}>+200</button>
-        <button onClick={() => this.props.withdrawAmount(100)}>-100</button>
-        <button onClick={() => this.props.depositAmount(1000000000)}>
-          I want to be Billionaire
-        </button>
-        <button onClick={() => this.props.toBTC(this.props.wallet.balance)}>To BTC</button>
-      </div>
-    );
-  }
+```typescript jsx
+import React from 'react';
+import { connect } from 'react-redux';
+import { actions, WalletState } from './wallet-dryer';
+import { fetchBTCRate } from './bitcoin-thunks';
+import { AppState } from './reducers';
+
+const mapStateToProps = ({ wallet }: AppState) => ({
+  ...wallet,
+});
+
+const mapDispatchToProps = {};
+
+interface Wallet {
+  loading: boolean;
+  balance: number;
+  btc: number;
+  actions: ReturnType;
 }
 
-export default connect(({ wallet, bitcoin }) => ({ wallet, bitcoin }), {
-  ...actions,
-  ...thunks
-})(Wallet);
+export const Wallet: FC<Wallet> = ({ balance, loading, btc, ...actions }) => {
+  return (
+    <div>
+      <div>USD Balance: {balance}</div>
+      <div>Bitcoin Balance: {btc}</div>
+      <button onClick={() => actions.depositAmount(200)}>+200</button>
+      <button onClick={() => actions.withdrawAmount(100)}>-100</button>
+      <button onClick={() => actions.setBalance(10000000000)}>
+        I want to be Billionaire
+      </button>
+      <button onClick={() => actions.toBTC(balance)}>To BTC</button>
+      {loading && 'Loading...'}
+    </div>
+  );
+};
 
+export default connect(
+  ({ wallet, bitcoin }) => ({ wallet, bitcoin }),
+  {
+    ...actions,
+    ...thunks,
+  }
+)(Wallet);
+```
