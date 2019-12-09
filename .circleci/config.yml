@@ -10,7 +10,7 @@ general:
 variables:
   container_settings: &container_settings
     working_directory: /tmp/workspace
-    doker:
+    docker:
       - image: 'circleci/node:latest'
 
   restore_cache_repo: &restore_cache_repo
@@ -63,7 +63,6 @@ jobs:
 
       - *persist_workspace
 
-
   build:
     <<: *container_settings
     steps:
@@ -93,7 +92,6 @@ jobs:
 
 workflows:
   version: 2
-
   check_in:
     jobs:
       - checkout_and_install:
