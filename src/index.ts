@@ -1,3 +1,3 @@
-import { reduxDryer, ActionPayload } from "./redux-dryer";
+import { ActionPayload, reduxDryer } from "./redux-dryer";
 
-export { reduxDryer, ActionPayload };
+export { ActionPayload, reduxDryer };
