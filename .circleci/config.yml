@@ -1,0 +1,131 @@
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@1.0.5
+
+general:
+  artifacts:
+    - "coverage/lcov-report"
+
+variables:
+  container_settings: &container_settings
+    working_directory: /tmp/workspace
+    doker:
+      - image: 'circleci/node:latest'
+
+  restore_cache_repo: &restore_cache_repo
+    restore_cache:
+      keys:
+        - repo_cache-{{ .Environment.cache_version }}-{{ .Branch }}-{{ .Revision }}
+        - repo_cache-{{ .Environment.cache_version }}-{{ .Branch }}
+        - repo_cache-{{ .Environment.cache_version }}
+
+  save_cache_repo: &save_cache_repo
+    save_cache:
+      key: cache-{{ .Environment.cache_version }}-{{ .Branch }}-{{ .Revision }}
+      paths:
+        - .
+
+  restore_cache_node_modules: &restore_cache_node_modules
+    restore_cache:
+      keys:
+        - node_module_cache-{{ .Environment.cache_version }}-{{ checksum "package-lock.json" }}
+        - node_module_cache-{{ .Environment.cache_version }}
+
+  save_cache_node_modules: &save_cache_node_modules
+    save_cache:
+      paths:
+        - node_modules
+      key: node_module_cache-{{ .Environment.cache_version }}-{{ checksum "package-lock.json" }}
+
+  persist_workspace: &persist_workspace
+    persist_to_workspace:
+      root: /tmp
+      paths:
+        - workspace/*
+
+  attach_workspace: &attach_workspace
+    attach_workspace:
+      at: /tmp
+
+jobs:
+  checkout_and_install:
+    <<: *container_settings
+
+    steps:
+      - *restore_cache_repo
+      - checkout
+      - *save_cache_repo
+
+      - *restore_cache_node_modules
+      - run: npm install
+      - *save_cache_node_modules
+
+      - *persist_workspace
+
+
+  build:
+    <<: *container_settings
+    steps:
+      - *attach_workspace
+      - run:
+          name: "Build"
+          command: npm run build
+
+  test_lint:
+    <<: *container_settings
+    steps:
+      - *attach_workspace
+      - run:
+          name: "Test Lint"
+          command: npm run lint
+
+  test_jest:
+    <<: *container_settings
+    steps:
+      - *attach_workspace
+      - run:
+          name: "Test Jest"
+          command: npm run test -- --no-cache
+      - store_artifacts:
+          path: coverage
+          destination: coverage
+
+workflows:
+  version: 2
+
+  check_in:
+    jobs:
+      - checkout_and_install:
+          filters:
+            branches:
+              ignore:
+                - develop
+                - /release\/.*/
+                - master
+      - build:
+          requires:
+            - checkout_and_install
+      - test_lint:
+          requires:
+            - checkout_and_install
+      - test_jest:
+          requires:
+            - checkout_and_install
+
+  release:
+    jobs:
+      - checkout_and_install:
+          filters:
+            branches:
+              only:
+                - master
+      - build:
+          requires:
+            - checkout_and_install
+      - test_lint:
+          requires:
+            - checkout_and_install
+      - test_jest:
+          requires:
+            - checkout_and_install
