@@ -90,6 +90,14 @@ jobs:
           path: coverage
           destination: coverage
 
+  release:
+    <<: *container_settings
+    steps:
+      - *attach_workspace
+      - run:
+          name: "Semantic release"
+          command: npm run semantic-release
+
 workflows:
   version: 2
   check_in:
@@ -101,6 +109,8 @@ workflows:
                 - develop
                 - /release\/.*/
                 - master
+                - next
+                - 0.*
       - build:
           requires:
             - checkout_and_install
@@ -118,6 +128,7 @@ workflows:
             branches:
               only:
                 - master
+                - next
       - build:
           requires:
             - checkout_and_install
@@ -127,3 +138,8 @@ workflows:
       - test_jest:
           requires:
             - checkout_and_install
+      - release:
+          requires:
+            - build
+            - test_lint
+            - test_jest
