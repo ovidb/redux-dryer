@@ -1,14 +1,24 @@
 # Redux-dryer
 
-[![Coverage Status](https://coveralls.io/repos/github/ovidb/redux-dryer/badge.svg?branch=next)](https://coveralls.io/github/ovidb/redux-dryer?branch=next)
+[![Coverage Status](https://coveralls.io/repos/github/ovidb/redux-dryer/badge.svg?branch=next)](https://coveralls.io/github/ovidb/redux-dryer?branch=master)
 
-Keep your redux stores as dry as possible
+This library uses the strategy pattern and removes the boilerplate from your workflow. 
+
+### What do I mean by that?
+
+Instead of having to write a lot of boilerplate code you basically only have to define your reducers (strategies)
+for updating your store.
+ 
+The actions are automatically generated for you by the library when you initialize the reducer.  
+
+The library also uses [Immer](https://github.com/immerjs/immer), which makes state updates cleaner and easier to reason 
+about because you can mutate the objects directly instead of having the spread them. 
 
 #### [Demo Playground](https://codesandbox.io/s/redux-dryernext-89vvc)
 
 ### Installing
 
-`npm install redux-dryer`
+`npm install @ovidb/redux-dryer`
 
 ## Usage
 
@@ -44,7 +54,8 @@ const { reducer: walletReducer, actions } = reduxDryer({
   reducers: {
     // the name of the action will become the action type
     setBalance: (state, action: AP<Payloads['SetBalance']>) => {
-      // we can update state directly because [Immer](https://github.com/immerjs/immer) is used behind the scene.
+      // Even though this looks like we are mutating we are not because
+      // we can update state directly with [Immer](https://github.com/immerjs/immer)
       state.balance = action.payload;
     },
     depositAmount: (state, action: AP<Payloads['Amount']>) => {
