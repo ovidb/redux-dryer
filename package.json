@@ -3,13 +3,36 @@
   "version": "1.0.0-alpha.2",
   "description": "Redux utilities to keep your reducers small and DRY",
   "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "commit": "git-cz",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "test": "jest --coverage",
+    "test:watch": "jest --coverage --watch",
+    "test:prod": "npm run lint && npm run test -- --no-cache",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls",
+    "semantic-release": "semantic-release"
+  },
   "files": [
     "lib/**/*"
   ],
   "husky": {
     "hooks": {
+      "pre-commit": "lint-staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": [
+      "prettier --write",
+      "jest --findRelatedTests",
+      "git add"
+    ]
   },
   "jest": {
     "coveragePathIgnorePatterns": [
@@ -37,21 +60,6 @@
     ],
     "testEnvironment": "node"
   },
-  "scripts": {
-    "build": "tsc",
-    "commit": "git-cz",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
-    "preversion": "npm run lint",
-    "version": "npm run format && git add -A src",
-    "test": "jest --coverage",
-    "test:watch": "jest --coverage --watch",
-    "test:prod": "npm run lint && npm run test -- --no-cache",
-    "report-coverage": "cat ./coverage/lcov.info | coveralls",
-    "semantic-release": "semantic-release"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ovidb/redux-dryer.git"
@@ -71,23 +79,25 @@
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@commitlint/prompt": "^8.2.0",
-    "@semantic-release/changelog": "^3.0.4",
-    "@semantic-release/git": "^7.0.16",
-    "@types/jest": "^24.0.18",
+    "@jedmao/semantic-release-npm-github-config": "^1.0.9",
+    "@semantic-release/changelog": "^3.0.6",
+    "@semantic-release/git": "^7.0.18",
+    "@types/jest": "^24.0.23",
     "commitizen": "^4.0.3",
-    "coveralls": "^3.0.6",
+    "coveralls": "^3.0.9",
     "cz-conventional-changelog": "^3.0.2",
-    "husky": "^3.0.8",
+    "husky": "^3.1.0",
     "jest": "^24.9.0",
-    "prettier": "^1.18.2",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1",
     "semantic-release": "^15.13.31",
-    "ts-jest": "^24.1.0",
-    "tslint": "^5.20.0",
+    "ts-jest": "^24.2.0",
+    "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.3"
   },
   "dependencies": {
-    "immer": "^4.0.0"
+    "immer": "^5.3.2"
   },
   "config": {
     "commitizen": {
