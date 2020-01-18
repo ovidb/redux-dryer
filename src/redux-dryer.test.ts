@@ -36,7 +36,7 @@ describe('reduxDryer', () => {
 
     it('should return default state when teh reducer is called with undefined', () => {
       // @ts-ignore because we are saying we are always passing state in the type definitions
-      expect(generatedReducer.reducer(undefined, { type: 'some_action' }))
+      expect(generatedReducer.reducer(undefined, { type: 'some_action' }));
     });
 
     it('should return have the correct number of actions', () => {

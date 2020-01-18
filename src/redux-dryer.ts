@@ -7,23 +7,17 @@ export const reduxDryer = <State, R extends Reducers<State, any>>(
   const reducers = options.reducers;
   const actionTypes = Object.keys(reducers);
 
-  const reducerMap = actionTypes.reduce(
-    (map, action) => {
-      const type = getType(namespace, action);
-      map[type] = reducers[action];
-      return map;
-    },
-    {} as any
-  );
+  const reducerMap = actionTypes.reduce((map, action) => {
+    const type = getType(namespace, action);
+    map[type] = reducers[action];
+    return map;
+  }, {} as any);
 
-  const actionMap = actionTypes.reduce(
-    (map, action) => {
-      const type = getType(namespace, action);
-      map[action] = createAction(type);
-      return map;
-    },
-    {} as any
-  );
+  const actionMap = actionTypes.reduce((map, action) => {
+    const type = getType(namespace, action);
+    map[action] = createAction(type);
+    return map;
+  }, {} as any);
 
   return {
     actions: actionMap,
