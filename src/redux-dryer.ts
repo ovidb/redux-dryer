@@ -71,7 +71,7 @@ interface IAction {
 }
 
 type Reducer<S = any, A extends IAction = IAnyAction> = (
-  state: S,
+  state: S | undefined,
   action: A
 ) => S;
 
