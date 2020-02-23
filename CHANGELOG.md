@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/ovidb/redux-dryer/compare/v1.0.0...v1.0.1) (2020-02-23)
+
+
+### Bug Fixes
+
+* **types:** fix reducer returning never ([#3](https://github.com/ovidb/redux-dryer/issues/3)) ([eac26eb](https://github.com/ovidb/redux-dryer/commit/eac26ebc3fd03266b354cd8b8922855fc91f4858))
+
 # 1.0.0 (2020-01-18)
 
 

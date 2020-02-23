@@ -22,7 +22,7 @@ interface IAnyAction extends IAction {
 interface IAction {
     type: string;
 }
-declare type Reducer<S = any, A extends IAction = IAnyAction> = (state: S, action: A) => S;
+declare type Reducer<S = any, A extends IAction = IAnyAction> = (state: S | undefined, action: A) => S;
 declare type ImmerReducer<S = any, A extends IAction = IAnyAction> = (state: Draft<S>, action: A) => S | void;
 declare type ActionsWithPayload<Types extends keyof any = string> = Record<Types, ActionPayload>;
 declare type Reducers<State, PA extends ActionsWithPayload> = {
