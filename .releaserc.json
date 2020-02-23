@@ -19,7 +19,7 @@
       "@semantic-release/npm",
       {
         "tarballDir": "pack",
-        "npmPublish": false
+        "npmPublish": true
       }
     ],
     [
