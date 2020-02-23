@@ -1,6 +1,6 @@
 {
   "name": "@ovidb/redux-dryer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Redux utilities to keep your reducers small and DRY",
   "main": "index.js",
   "scripts": {

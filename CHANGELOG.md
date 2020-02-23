@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/ovidb/redux-dryer/compare/v1.0.1...v1.0.2) (2020-02-23)
+
+
+### Bug Fixes
+
+* **ci:** publish npm package when releasing ([#4](https://github.com/ovidb/redux-dryer/issues/4)) ([2c3029a](https://github.com/ovidb/redux-dryer/commit/2c3029ad6101e6772e1c96b7f01c1a7223c543df))
+
 ## [1.0.1](https://github.com/ovidb/redux-dryer/compare/v1.0.0...v1.0.1) (2020-02-23)
 
 
